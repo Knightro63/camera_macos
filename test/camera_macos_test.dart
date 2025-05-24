@@ -15,6 +15,7 @@ class MockCameraMacOSPlatform
     String? deviceId,
     String? audioDeviceId,
     bool enableAudio = true,
+    bool isVideoMirrored = false,
     PictureFormat pictureFormat = PictureFormat.tiff,
     VideoFormat videoFormat = VideoFormat.mp4,
     PictureResolution resolution = PictureResolution.max,
@@ -61,7 +62,9 @@ class MockCameraMacOSPlatform
 
   @override
   Future<void> startImageStream(
-      void Function(CameraImageData) onAvailable) async {
+    void Function(CameraImageData) onAvailable, {
+    void Function(dynamic)? onError,
+  }) async {
     throw UnimplementedError("");
   }
 
@@ -87,6 +90,11 @@ class MockCameraMacOSPlatform
 
   @override
   Future<void> toggleTorch(Torch torch) {
+    throw UnimplementedError("");
+  }
+
+  @override
+  Future<void> setVideoMirrored(bool isVideoMirrored) {
     throw UnimplementedError("");
   }
 }

@@ -56,7 +56,9 @@ class CameraMacOSController {
 
   /// Stream current argb image
   Future<void> startImageStream(
-      void Function(CameraImageData) onAvailable) async {
+    void Function(CameraImageData?) onAvailable, {
+    void Function(dynamic)? onError,
+  }) async {
     _platformInstance.startImageStream(onAvailable);
   }
 
@@ -76,6 +78,10 @@ class CameraMacOSController {
 
   Future<void> setOrientation(CameraOrientation orientation) async {
     _platformInstance.setOrientation(orientation);
+  }
+
+  Future<void> setVideoMirrored(bool isVideoMirrored) async {
+    _platformInstance.setVideoMirrored(isVideoMirrored);
   }
 
   /// Getter that checks if a video is currently recording

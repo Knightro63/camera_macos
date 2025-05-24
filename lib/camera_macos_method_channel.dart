@@ -87,8 +87,8 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
       Torch toggleTorch = Torch.off,
 
       /// Set camera orientation
-      CameraOrientation orientation =
-          CameraOrientation.orientation0deg}) async {
+      CameraOrientation orientation = CameraOrientation.orientation0deg,
+      bool isVideoMirrored = true}) async {
     try {
       final Map<String, dynamic>? result =
           await methodChannel.invokeMapMethod<String, dynamic>(
@@ -101,6 +101,7 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
           'resolution': resolution.name,
           'quality': audioQuality.name,
           'orientation': orientation.index * 90.0,
+          'isVideoMirrored': isVideoMirrored,
           'torch': toggleTorch.index,
           'pformat': pictureFormat.name,
           'vformat': videoFormat.name,
@@ -269,19 +270,45 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
 
   @override
   Future<void> startImageStream(
-      void Function(CameraImageData image) onAvailable) async {
-    events = eventChannel.receiveBroadcastStream().listen((data) {
-      onAvailable(CameraImageData(
-          width: data['width'],
-          height: data['height'],
-          bytesPerRow: data['bytesPerRow'],
-          bytes: Uint8List.fromList(data['data'])));
-    });
+      void Function(CameraImageData? image) onAvailable,
+      {void Function(dynamic)? onError}) async {
+    events = eventChannel.receiveBroadcastStream().listen(
+      (data) {
+        if (data is Map) {
+          onAvailable(
+            CameraImageData(
+              width: data['width'],
+              height: data['height'],
+              bytesPerRow: data['bytesPerRow'],
+              bytes: Uint8List.fromList(data['data']),
+            ),
+          );
+        } else if (onError != null) {
+          onError(
+            CameraMacOSException(
+              code: "INVALID_FORMAT",
+              message: "Stream data is not in a valid format",
+              details: data,
+            ),
+          );
+        }
+      },
+      onError: onError,
+    );
   }
 
   @override
   Future<void> stopImageStream() async {
-    events?.cancel();
+    try {
+      await events?.cancel();
+      events = null;
+    } catch (e) {
+      throw CameraMacOSException(
+        code: "CANNOT_STOP_STREAM",
+        message: "Image stream cannot be stopped",
+        details: e.toString(),
+      );
+    }
   }
 
   @override
@@ -326,6 +353,16 @@ class MethodChannelCameraMacOS extends CameraMacOSPlatform {
       'setOrientation',
       <String, dynamic>{
         'orientation': orientation.index,
+      },
+    );
+  }
+
+  @override
+  Future<void> setVideoMirrored(bool isVideoMirrored) {
+    return methodChannel.invokeMethod<void>(
+      'setVideoMirrored',
+      <String, dynamic>{
+        'isVideoMirrored': isVideoMirrored,
       },
     );
   }

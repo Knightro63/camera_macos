@@ -1,3 +1,7 @@
+## 0.0.9
+* Bug Fixes: Image stream should now stop correctly
+* Added Video Mirroring functionality
+* Updated example
 ## 0.0.8
 * Bug Fixes: Fixed issue with startimagestream on macos 14.0
 * Added ability to turn light on or off

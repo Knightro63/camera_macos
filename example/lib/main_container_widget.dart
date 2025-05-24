@@ -37,6 +37,7 @@ class MainContainerWidgetState extends State<MainContainerWidget> {
   bool enableTorch = false;
   bool usePlatformView = false;
   bool streamImage = false;
+  bool isVideoMirrored = true;
 
   CameraImageData? streamedImage;
 
@@ -264,6 +265,8 @@ class MainContainerWidgetState extends State<MainContainerWidget> {
                                                     selectedVideoFormat,
                                                 audioFormat:
                                                     selectedAudioFormat,
+                                                isVideoMirrored:
+                                                    isVideoMirrored,
                                                 onCameraInizialized:
                                                     (CameraMacOSController
                                                         controller) {
@@ -601,6 +604,21 @@ class MainContainerWidgetState extends State<MainContainerWidget> {
                                 },
                               ),
                               CheckboxListTile(
+                                value: isVideoMirrored,
+                                contentPadding: EdgeInsets.zero,
+                                tristate: false,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                title: Text("Mirror video"),
+                                onChanged: (bool? newValue) {
+                                  setState(() {
+                                    this.isVideoMirrored = newValue ?? false;
+                                    macOSController
+                                        ?.setVideoMirrored(isVideoMirrored);
+                                  });
+                                },
+                              ),
+                              CheckboxListTile(
                                 value: streamImage,
                                 contentPadding: EdgeInsets.zero,
                                 tristate: false,
@@ -896,6 +914,9 @@ class MainContainerWidgetState extends State<MainContainerWidget> {
           macOSController!.startImageStream(
             (p0) {
               print(p0.toString());
+            },
+            onError: (dynamic err) {
+              print(err.toString());
             },
           );
         });
