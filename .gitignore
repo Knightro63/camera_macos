@@ -23,7 +23,6 @@
 .settings/
 .vscode/*
 
-*/macos
 */web
 */ios
 */android
